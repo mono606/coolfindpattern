@@ -45,12 +45,14 @@ macro_rules! pattern {
 pub type OwnedPattern = Vec<Option<u8>>;
 pub type Pattern<'a> = &'a [Option<u8>];
 
+#[derive(Clone)]
 pub struct PatternChunk {
     pub first_byte: Simd<u8, BYTES>,
     pub mask: Mask<i8, BYTES>,
     pub bytes: Simd<u8, BYTES>,
 }
 
+#[derive(Clone)]
 pub struct PreparedPattern {
     pub chunks: Vec<PatternChunk>,
     pub orig_pat: OwnedPattern,
@@ -125,6 +127,7 @@ impl<'a> From<Pattern<'a>> for PreparedPattern {
 // precompute data for pattern in SIMD chunks.
 // SIMD search binary
 
+#[derive(Clone)]
 pub struct PatternSearcher<'data> {
     data: &'data [u8],
     remaining_data: &'data [u8],
