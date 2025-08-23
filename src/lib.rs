@@ -1,4 +1,4 @@
-#![feature(portable_simd, array_chunks)]
+#![feature(portable_simd, slice_as_chunks)]
 
 use std::{
     ops::BitAnd,
@@ -105,8 +105,10 @@ impl<'a> From<Pattern<'a>> for PreparedPattern {
         mask_extended[0..pat.len()].copy_from_slice(&mask);
 
         let chunks: Vec<PatternChunk> = bytes_extended
-            .array_chunks::<BYTES>()
-            .zip(mask_extended.array_chunks::<BYTES>())
+            .as_chunks::<BYTES>()
+            .0
+            .iter()
+            .zip(mask_extended.as_chunks::<BYTES>().0)
             .map(|(bytes, mask)| PatternChunk {
                 first_byte: Simd::from_array([bytes[0]; BYTES]),
                 mask: Mask::from_array(*mask),
@@ -376,9 +378,51 @@ fn test_scan_large_sig() {
     buf[49] = 0xEF;
 
     let pattern = pattern!(
-        0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE,
-        0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _,
-        0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF, 0xDE, 0xAD, _, 0xBE, 0xEF
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF,
+        0xDE,
+        0xAD,
+        _,
+        0xBE,
+        0xEF
     );
 
     let mut scanner = PatternSearcher::new(&buf, pattern);
